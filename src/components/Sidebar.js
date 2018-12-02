@@ -1,13 +1,23 @@
 import React from 'react';
 
-import { withSocket } from './context/SocketContext';
-
 import { Div } from './uikit';
 
-const Sidebar = ({ socket, user, game, setGame }) => (
+const Sidebar = ({ games, user, game, setGame }) => (
   <Div width={200} pl={3} pr={3}>
-    Sidebar
+    {Object.keys(games).map(id => {
+      return (
+        <Div key={id} buffer onClick={() => setGame(id)}>
+          <Div>
+            {id === game ? '* ' : ''}
+            {games[id].opponent ? 'in progress' : 'new game'}
+          </Div>
+          <Div>
+            {games[id].hostName} vs. {games[id].opponentName || '?'}
+          </Div>
+        </Div>
+      );
+    })}
   </Div>
 );
 
-export default withSocket(Sidebar);
+export default Sidebar;

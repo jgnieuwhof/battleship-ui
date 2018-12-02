@@ -4,16 +4,17 @@ import { applyDefaultStyles } from './util';
 
 const StyledButton = applyDefaultStyles('button');
 
-const Button = x => (
+const Button = ({ disabled, ...x }) => (
   <StyledButton
     {...x}
+    {...{ disabled }}
     p={2}
-    bg="green"
+    bg="primary"
     fontSize={2}
     fontWeight="bold"
     border={0}
     borderRadius={4}
-    cursor="pointer"
+    {...!disabled && { cursor: 'pointer' }}
   />
 );
 

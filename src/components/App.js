@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import store from 'store';
 
 import { withSocket } from './context/SocketContext';
+import { withModal } from './context/ModalContext';
 
 import { Flex } from './uikit';
 import RegisterUser from './RegisterUser';
@@ -9,14 +10,13 @@ import Header from './Header';
 import Sidebar from './Sidebar';
 import Game from './Game';
 import Modal from './Modal';
-import { NewGame } from './modals';
 
 import './App.css';
 
 const App = ({ socket }) => {
   const [user, setUser] = useState({});
   const [game, setGame] = useState(null);
-  const [modal, setModal] = useState(null);
+  const [games, setGames] = useState({});
 
   const updateUser = update => {
     socket.emit('client::updateUser', update, user => {
@@ -27,25 +27,29 @@ const App = ({ socket }) => {
 
   useEffect(() => {
     if (!user.id) {
-      socket.emit('client::init', null, user => {
+      socket.emit('client::init', store.get('user'), ({ user, games }) => {
         setUser(user);
-        if (store.get('user')) updateUser(store.get('user'));
+        setGames(games);
       });
     }
   });
 
+  useEffect(
+    () => {
+      socket.on('server::games', setGames);
+    },
+    [socket]
+  );
+
   return (
     <div>
       <Flex bg="dark" minHeight="100vh" flexDirection="column" color="light">
-        {user.name ? (
+        {user.registered ? (
           <>
-            <Header
-              {...{ user }}
-              onNewGameClick={() => setModal(<NewGame />)}
-            />
+            <Header {...{ user }} />
             <Flex>
-              <Sidebar {...{ user, game, setGame }} />
-              <Game {...{ user, game }} />
+              <Sidebar {...{ user, game, setGame, games }} />
+              <Game {...{ user }} game={games[game]} />
             </Flex>
           </>
         ) : (
@@ -55,13 +59,15 @@ const App = ({ socket }) => {
             alignItems="center"
             justifyContent="center"
           >
-            <RegisterUser setUsername={name => updateUser({ name })} />
+            <RegisterUser
+              setUser={x => updateUser({ registered: true, ...x })}
+            />
           </Flex>
         )}
       </Flex>
-      <Modal {...{ Component: modal }} />
+      <Modal />
     </div>
   );
 };
 
-export default withSocket(App);
+export default withModal(withSocket(App));

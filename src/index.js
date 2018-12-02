@@ -7,6 +7,7 @@ import { apiHost, apiPort } from './common/config';
 
 import App from './components/App';
 import SocketContext from './components/context/SocketContext';
+import ModalContext from './components/context/ModalContext';
 import theme from './common/theme';
 
 import './index.css';
@@ -14,10 +15,12 @@ import './index.css';
 const socket = io(`http://${apiHost}:${apiPort}`);
 
 ReactDOM.render(
-  <SocketContext.Provider value={socket}>
-    <ThemeProvider {...{ theme }}>
-      <App />
-    </ThemeProvider>
-  </SocketContext.Provider>,
+  <ModalContext.Provider>
+    <SocketContext.Provider value={socket}>
+      <ThemeProvider {...{ theme }}>
+        <App />
+      </ThemeProvider>
+    </SocketContext.Provider>
+  </ModalContext.Provider>,
   document.getElementById('root')
 );

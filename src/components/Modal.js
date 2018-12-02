@@ -3,6 +3,7 @@ import ReactModal from 'react-modal';
 import styled from '@emotion/styled';
 
 import { Button, Div, Flex } from './uikit';
+import { withModal } from './context/ModalContext';
 
 const StyledTitle = styled(Div)`
   border-bottom: 1px solid ${({ theme }) => theme.colors.light};
@@ -15,13 +16,24 @@ export const Title = ({ children }) => (
 
 export const Content = ({ children }) => <Div p={3}>{children}</Div>;
 
-export const Footer = ({ onSubmit }) => (
+const FooterBase = ({ closeModal, enabled, onSubmit }) => (
   <Div p={3}>
-    <Button onClick={onSubmit}>Submit</Button>
+    <Button
+      disabled={!enabled}
+      onClick={() => {
+        if (enabled) {
+          onSubmit();
+          closeModal();
+        }
+      }}
+    >
+      submit
+    </Button>
   </Div>
 );
+export const Footer = withModal(FooterBase);
 
-const Modal = ({ Component, ...props }) => (
+const Modal = ({ modal, closeModal, ...props }) => (
   <ReactModal
     style={{
       content: {
@@ -30,21 +42,25 @@ const Modal = ({ Component, ...props }) => (
         right: 'auto',
         bottom: 'auto',
         marginRight: '-50%',
+        minWidth: '40%',
+        maxWidth: '800px',
         transform: 'translate(-50%, -50%)',
         padding: '0px'
       }
     }}
     contentLabel="Example Modal"
     ariaHideApp={false}
-    isOpen={!!Component}
+    isOpen={!!modal}
+    shouldCloseOnOverlayClick={true}
+    onRequestClose={closeModal}
     {...props}
   >
-    {Component && (
+    {modal && (
       <Flex flexDirection="column" textAlign="center">
-        {Component}
+        {modal}
       </Flex>
     )}
   </ReactModal>
 );
 
-export default Modal;
+export default withModal(Modal);

@@ -1,14 +1,22 @@
 import React from 'react';
 
+import { withModal } from './context/ModalContext';
 import { Button, Flex } from './uikit';
+import NewGame from './modals/NewGame';
 
-const Header = ({ user: { name, id }, onNewGameClick }) => (
+const Header = ({ setModal, user: { name, id }, onNewGameClick }) => (
   <Flex p={3} justifyContent="space-between">
     <Flex alignItems="center">
       {name} ({id})
     </Flex>
-    <Button onClick={onNewGameClick}>new game</Button>
+    <Button
+      onClick={() => {
+        setModal(<NewGame />);
+      }}
+    >
+      new game
+    </Button>
   </Flex>
 );
 
-export default Header;
+export default withModal(Header);
