@@ -1,13 +1,13 @@
 import React from 'react';
 
-import { Div, Flex } from './uikit';
+import { Button, Flex } from './uikit';
 
-const Header = ({ currentUser: { name, id } }) => (
+const Header = ({ user: { name, id }, onNewGameClick }) => (
   <Flex p={3} justifyContent="space-between">
-    <Div>
+    <Flex alignItems="center">
       {name} ({id})
-    </Div>
-    <Div>New Game</Div>
+    </Flex>
+    <Button onClick={onNewGameClick}>new game</Button>
   </Flex>
 );
 

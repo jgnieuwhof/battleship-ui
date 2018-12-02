@@ -8,50 +8,59 @@ import RegisterUser from './RegisterUser';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Game from './Game';
+import Modal from './Modal';
+import { NewGame } from './modals';
 
 import './App.css';
 
 const App = ({ socket }) => {
-  const [currentUser, setCurrentUser] = useState({});
-  const [currentGame, setCurrentGame] = useState(null);
+  const [user, setUser] = useState({});
+  const [game, setGame] = useState(null);
+  const [modal, setModal] = useState(null);
 
   const updateUser = update => {
     socket.emit('client::updateUser', update, user => {
-      setCurrentUser(user);
+      setUser(user);
       store.set('user', user);
     });
   };
 
   useEffect(() => {
-    if (!currentUser.id) {
+    if (!user.id) {
       socket.emit('client::init', null, user => {
-        setCurrentUser(user);
+        setUser(user);
         if (store.get('user')) updateUser(store.get('user'));
       });
     }
   });
 
   return (
-    <Flex bg="dark" minHeight="100vh" flexDirection="column" color="light">
-      {currentUser.name ? (
-        <>
-          <Header {...{ currentUser }} />
-          <Flex>
-            <Sidebar {...{ currentUser, currentGame, setCurrentGame }} />
-            <Game {...{ currentUser, currentGame }} />
+    <div>
+      <Flex bg="dark" minHeight="100vh" flexDirection="column" color="light">
+        {user.name ? (
+          <>
+            <Header
+              {...{ user }}
+              onNewGameClick={() => setModal(<NewGame />)}
+            />
+            <Flex>
+              <Sidebar {...{ user, game, setGame }} />
+              <Game {...{ user, game }} />
+            </Flex>
+          </>
+        ) : (
+          <Flex
+            minHeight={0}
+            flexGrow={1}
+            alignItems="center"
+            justifyContent="center"
+          >
+            <RegisterUser setUsername={name => updateUser({ name })} />
           </Flex>
-        </>
-      ) : (
-        <Flex
-          minHeight={0}
-          flexGrow={1}
-          alignItems="center"
-          justifyContent="center"
-        >
-          <RegisterUser setUsername={name => updateUser({ name })} />
-        </Flex>
-      )}
-    </Flex>
+        )}
+      </Flex>
+      <Modal {...{ Component: modal }} />
+    </div>
   );
 };
 

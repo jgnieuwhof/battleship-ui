@@ -16,7 +16,7 @@ import {
 } from 'styled-system';
 
 const styleHelper = (prop, cssProp) => props =>
-  props[prop] ? `${cssProp}: ${props[prop]};` : ``;
+  props[prop] ? `${cssProp || prop}: ${props[prop]};` : ``;
 
 const applyDefaultStyles = Component => styled(Component)`
   ${space}
@@ -37,6 +37,7 @@ const applyDefaultStyles = Component => styled(Component)`
   ${alignSelf}
 
   ${styleHelper('flexGrow', 'flex-grow')}
+  ${styleHelper('cursor')}
 `;
 
 export default applyDefaultStyles;

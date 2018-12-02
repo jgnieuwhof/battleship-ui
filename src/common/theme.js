@@ -12,7 +12,8 @@ const theme = {
   ],
   colors: {
     dark: '#282c34',
-    light: '#e0e0e0'
+    light: '#e0e0e0',
+    green: '#20b95f'
   }
 };
 
