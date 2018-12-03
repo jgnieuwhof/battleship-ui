@@ -25,7 +25,7 @@ const App = ({ socket, history, location, match }) => {
 
   useEffect(() => {
     if (!user.id) {
-      socket.emit('client::init', store.get('user'), user => {
+      socket.emit('client::userInit', store.get('user'), user => {
         setUser(user);
         if (!location.pathname.startsWith('/games')) history.push('/games');
       });
