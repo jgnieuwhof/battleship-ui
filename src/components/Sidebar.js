@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Div } from './uikit';
+import { Div } from 'components/uikit';
 
 const Sidebar = ({ games, user, gameId, setGame }) => (
   <Div width={200} pl={3} pr={3}>

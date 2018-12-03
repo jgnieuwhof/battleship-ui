@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import { withRouter } from 'react-router';
 
-import { withSocket } from '../context/SocketContext';
-import { Div, Input } from '../uikit';
-import { Title, Content, Footer } from '../Modal';
+import { withSocket } from 'components/context/SocketContext';
+import { Div, Input } from 'components/uikit';
+import { Title, Content, Footer } from 'components/Modal';
 
-const NewGame = ({ socket }) => {
+const NewGame = ({ history, socket }) => {
   const [numberOfShips, setNumberOfShips] = useState(5);
   const [shotsPerTurn, setShotsPerTurn] = useState(1);
   const [dimensions, setDimensions] = useState([10, 10]);
@@ -61,15 +62,19 @@ const NewGame = ({ socket }) => {
       <Footer
         enabled={valid}
         onSubmit={() => {
-          socket.emit('client::newGame', {
-            numberOfShips,
-            shotsPerTurn,
-            dimensions
-          });
+          socket.emit(
+            'client::newGame',
+            {
+              numberOfShips,
+              shotsPerTurn,
+              dimensions
+            },
+            ({ id }) => history.push(`/games/${id}`)
+          );
         }}
       />
     </>
   );
 };
 
-export default withSocket(NewGame);
+export default withSocket(withRouter(NewGame));
