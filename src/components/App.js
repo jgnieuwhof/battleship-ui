@@ -2,40 +2,19 @@ import React, { useEffect, useState } from 'react';
 import store from 'store';
 import { Switch, withRouter, Route } from 'react-router';
 
-import { withSocket } from './context/SocketContext';
-import { withModal } from './context/ModalContext';
+import { withSocket } from 'components/context/SocketContext';
+import { withModal } from 'components/context/ModalContext';
 
-import { Flex } from './uikit';
-import RegisterUser from './RegisterUser';
-import Header from './Header';
-import Sidebar from './Sidebar';
-import Game from './Game';
-import Modal from './Modal';
+import { Flex } from 'components/uikit';
+import RegisterUser from 'components/RegisterUser';
+import Header from 'components/Header';
+import Modal from 'components/Modal';
+import Dashboard from 'components/Dashboard';
 
-import './App.css';
-
-const Games = ({
-  match: {
-    params: { gameId }
-  },
-  history,
-  user,
-  games
-}) => {
-  return (
-    <Flex>
-      <Sidebar
-        {...{ user, gameId, games }}
-        setGame={id => history.push(`/games/${id}`)}
-      />
-      <Game {...{ user, gameId }} />
-    </Flex>
-  );
-};
+import 'components/App.css';
 
 const App = ({ socket, history, location, match }) => {
   const [user, setUser] = useState({});
-  const [games, setGames] = useState({});
 
   const updateUser = update => {
     socket.emit('client::updateUser', update, user => {
@@ -46,20 +25,12 @@ const App = ({ socket, history, location, match }) => {
 
   useEffect(() => {
     if (!user.id) {
-      socket.emit('client::init', store.get('user'), ({ user, games }) => {
+      socket.emit('client::init', store.get('user'), user => {
         setUser(user);
-        setGames(games);
         if (!location.pathname.startsWith('/games')) history.push('/games');
       });
     }
   });
-
-  useEffect(
-    () => {
-      socket.on('server::games', setGames);
-    },
-    [socket]
-  );
 
   return (
     <div>
@@ -71,7 +42,7 @@ const App = ({ socket, history, location, match }) => {
               <Route
                 exact
                 path="/games/:gameId?"
-                render={x => <Games {...x} {...{ user, games }} />}
+                render={x => <Dashboard {...x} {...{ user }} />}
               />
             </Switch>
           </>
