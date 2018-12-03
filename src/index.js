@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { ThemeProvider } from 'emotion-theming';
 import io from 'socket.io-client';
+import { BrowserRouter } from 'react-router-dom';
 
 import { apiHost, apiPort } from './common/config';
 
@@ -18,7 +19,9 @@ ReactDOM.render(
   <ModalContext.Provider>
     <SocketContext.Provider value={socket}>
       <ThemeProvider {...{ theme }}>
-        <App />
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </ThemeProvider>
     </SocketContext.Provider>
   </ModalContext.Provider>,

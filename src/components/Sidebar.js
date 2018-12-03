@@ -2,13 +2,13 @@ import React from 'react';
 
 import { Div } from './uikit';
 
-const Sidebar = ({ games, user, game, setGame }) => (
+const Sidebar = ({ games, user, gameId, setGame }) => (
   <Div width={200} pl={3} pr={3}>
     {Object.keys(games).map(id => {
       return (
         <Div key={id} buffer onClick={() => setGame(id)}>
           <Div>
-            {id === game ? '* ' : ''}
+            {id === gameId ? '* ' : ''}
             {games[id].opponent ? 'in progress' : 'new game'}
           </Div>
           <Div>

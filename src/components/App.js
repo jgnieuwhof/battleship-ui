@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import store from 'store';
+import { Switch, withRouter, Route } from 'react-router';
 
 import { withSocket } from './context/SocketContext';
 import { withModal } from './context/ModalContext';
@@ -13,9 +14,27 @@ import Modal from './Modal';
 
 import './App.css';
 
-const App = ({ socket }) => {
+const Games = ({
+  match: {
+    params: { gameId }
+  },
+  history,
+  user,
+  games
+}) => {
+  return (
+    <Flex>
+      <Sidebar
+        {...{ user, gameId, games }}
+        setGame={id => history.push(`/games/${id}`)}
+      />
+      <Game {...{ user, gameId }} />
+    </Flex>
+  );
+};
+
+const App = ({ socket, history, location, match }) => {
   const [user, setUser] = useState({});
-  const [game, setGame] = useState(null);
   const [games, setGames] = useState({});
 
   const updateUser = update => {
@@ -30,6 +49,7 @@ const App = ({ socket }) => {
       socket.emit('client::init', store.get('user'), ({ user, games }) => {
         setUser(user);
         setGames(games);
+        if (!location.pathname.startsWith('/games')) history.push('/games');
       });
     }
   });
@@ -47,10 +67,13 @@ const App = ({ socket }) => {
         {user.registered ? (
           <>
             <Header {...{ user }} />
-            <Flex>
-              <Sidebar {...{ user, game, setGame, games }} />
-              <Game {...{ user }} game={games[game]} />
-            </Flex>
+            <Switch>
+              <Route
+                exact
+                path="/games/:gameId?"
+                render={x => <Games {...x} {...{ user, games }} />}
+              />
+            </Switch>
           </>
         ) : (
           <Flex
@@ -60,7 +83,10 @@ const App = ({ socket }) => {
             justifyContent="center"
           >
             <RegisterUser
-              setUser={x => updateUser({ registered: true, ...x })}
+              setUser={x => {
+                history.push('/games');
+                updateUser({ registered: true, ...x });
+              }}
             />
           </Flex>
         )}
@@ -70,4 +96,4 @@ const App = ({ socket }) => {
   );
 };
 
-export default withModal(withSocket(App));
+export default withModal(withSocket(withRouter(App)));
