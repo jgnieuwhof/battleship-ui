@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import styled from '@emotion/styled';
 import { withRouter } from 'react-router';
 
 import { withSocket } from 'components/context/SocketContext';
 import { Div } from 'components/uikit';
+
+const StyledSidebar = styled(Div)`
+  width: 200px;
+  height: 100%;
+  overflow-y: scroll;
+`;
 
 const Sidebar = ({ history, user, gameId, setGame, socket }) => {
   const [games, setGames] = useState({});
@@ -21,7 +28,7 @@ const Sidebar = ({ history, user, gameId, setGame, socket }) => {
   );
 
   return (
-    <Div width={200} pl={3} pr={3}>
+    <StyledSidebar pl={3} pr={3}>
       {Object.keys(games).map(id => {
         return (
           <Div key={id} buffer onClick={() => history.push(`/games/${id}`)}>
@@ -35,7 +42,7 @@ const Sidebar = ({ history, user, gameId, setGame, socket }) => {
           </Div>
         );
       })}
-    </Div>
+    </StyledSidebar>
   );
 };
 export default withSocket(withRouter(Sidebar));

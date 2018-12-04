@@ -27,7 +27,7 @@ const NewGame = ({ history, socket }) => {
             maxLength={2}
             inputMask={/[^\d]/g}
             value={dimensions[0]}
-            onChange={({ value }) => setDimensions([value, dimensions[1]])}
+            onChange={({ value }) => setDimensions([+value, dimensions[1]])}
           />{' '}
           x{' '}
           <Input
@@ -35,7 +35,7 @@ const NewGame = ({ history, socket }) => {
             maxLength={2}
             inputMask={/[^\d]/g}
             value={dimensions[1]}
-            onChange={({ value }) => setDimensions([dimensions[0], value])}
+            onChange={({ value }) => setDimensions([dimensions[0], +value])}
           />
         </Div>
         <Div buffer>
@@ -45,7 +45,7 @@ const NewGame = ({ history, socket }) => {
             maxLength={1}
             inputMask={/[^\d]/g}
             value={shotsPerTurn}
-            onChange={({ value }) => setShotsPerTurn(value)}
+            onChange={({ value }) => setShotsPerTurn(+value)}
           />
         </Div>
         <Div buffer>
@@ -55,7 +55,7 @@ const NewGame = ({ history, socket }) => {
             maxLength={1}
             inputMask={/[^\d]/g}
             value={numberOfShips}
-            onChange={({ value }) => setNumberOfShips(value)}
+            onChange={({ value }) => setNumberOfShips(+value)}
           />
         </Div>
       </Content>
