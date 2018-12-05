@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 
 import { withSocket } from 'components/context/SocketContext';
-import { Flex } from 'components/uikit';
-import GameSummary from 'components/GameSummary';
-import GameTable from 'components/GameTable';
+import { Div, Flex } from 'components/uikit';
+
+import Board from './Board';
+import Summary from './Summary';
 
 const StyledGame = styled(Flex)`
   height: 100%;
@@ -24,12 +25,23 @@ const Game = ({ user, gameId, socket }) => {
 
   return (
     <StyledGame flexGrow={1} flexDirection="column" p={3}>
-      <GameSummary
-        {...{ user, gameId, game }}
-        acceptGame={() => socket.emit('client::acceptGame', { gameId })}
-      />
-      <Flex buffer flexGrow={1}>
-        <GameTable {...{ game }} />
+      <Summary {...{ gameId, game }} />
+      <Flex
+        buffer
+        flexGrow={1}
+        flexDirection="row"
+        justifyContent="space-around"
+      >
+        {game.id && (
+          <>
+            <Div width="45%">
+              <Board player="host" {...{ user, game }} />
+            </Div>
+            <Div width="45%">
+              <Board player="opponent" {...{ user, game }} />
+            </Div>
+          </>
+        )}
       </Flex>
     </StyledGame>
   );

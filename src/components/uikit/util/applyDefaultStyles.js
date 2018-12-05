@@ -12,7 +12,8 @@ import {
   color,
   justifySelf,
   alignSelf,
-  textAlign
+  textAlign,
+  lineHeight
 } from 'styled-system';
 
 const styleHelper = (prop, cssProp) => props =>
@@ -32,6 +33,7 @@ const applyDefaultStyles = Component => styled(Component)`
 
   ${color}
   ${textAlign}
+  ${lineHeight}
 
   ${justifySelf}
   ${alignSelf}
