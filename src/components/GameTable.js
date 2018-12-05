@@ -15,16 +15,13 @@ const StyledBoardSquare = styled(Div)`
   border: 1px solid black;
 `;
 const BoardSquare = ({ x, y, xDim, yDim }) => {
-  return (
-    <StyledBoardSquare>
-      ({x},{y})
-    </StyledBoardSquare>
-  );
+  return <StyledBoardSquare />;
 };
 
 const Board = ({ xDim, yDim }) => {
+  console.log('draw board');
   return (
-    <Div flexGrow={1}>
+    <Div>
       {times(yDim).map((_, y) => (
         <Flex key={y}>
           {times(xDim).map((_, x) => (
@@ -40,11 +37,15 @@ const GameTable = ({ game }) => {
   const { dimensions } = game;
   const [xDim, yDim] = dimensions || [];
   return (
-    <Flex flexGrow={1} flexDirection={yDim > xDim ? 'row' : 'column'}>
+    <Flex flexGrow={1} flexDirection="row" justifyContent="space-around">
       {dimensions && (
         <>
-          <Board {...{ xDim, yDim }} />
-          <Board {...{ xDim, yDim }} />
+          <Div flexGrow={1} mr={3}>
+            <Board {...{ xDim, yDim }} />
+          </Div>
+          <Div flexGrow={1}>
+            <Board {...{ xDim, yDim }} />
+          </Div>
         </>
       )}
     </Flex>

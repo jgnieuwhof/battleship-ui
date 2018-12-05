@@ -23,7 +23,7 @@ const Game = ({ user, gameId, socket }) => {
   );
 
   return (
-    <StyledGame flexGrow={1} flexDirection="column">
+    <StyledGame flexGrow={1} flexDirection="column" p={3}>
       <GameSummary
         {...{ user, gameId, game }}
         acceptGame={() => socket.emit('client::acceptGame', { gameId })}

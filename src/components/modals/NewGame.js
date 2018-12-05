@@ -8,7 +8,7 @@ import { Title, Content, Footer } from 'components/Modal';
 const NewGame = ({ history, socket }) => {
   const [numberOfShips, setNumberOfShips] = useState(5);
   const [shotsPerTurn, setShotsPerTurn] = useState(1);
-  const [dimensions, setDimensions] = useState([10, 10]);
+  const [dimensions, setDimensions] = useState([20, 20]);
 
   const valid = [
     numberOfShips > 0,
@@ -27,15 +27,7 @@ const NewGame = ({ history, socket }) => {
             maxLength={2}
             inputMask={/[^\d]/g}
             value={dimensions[0]}
-            onChange={({ value }) => setDimensions([+value, dimensions[1]])}
-          />{' '}
-          x{' '}
-          <Input
-            tiny
-            maxLength={2}
-            inputMask={/[^\d]/g}
-            value={dimensions[1]}
-            onChange={({ value }) => setDimensions([dimensions[0], +value])}
+            onChange={({ value }) => setDimensions([+value, +value])}
           />
         </Div>
         <Div buffer>

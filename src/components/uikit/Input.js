@@ -27,7 +27,7 @@ const Input = ({
   return (
     <StyledInput
       p={large ? 2 : 1}
-      {...tiny && { width: space[3] }}
+      {...tiny && { width: space[4] }}
       textAlign={tiny || center ? 'center' : 'left'}
       fontSize={large ? 4 : 1}
       fontWeight={large ? 'bold' : 'normal'}

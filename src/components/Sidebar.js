@@ -28,10 +28,14 @@ const Sidebar = ({ history, user, gameId, setGame, socket }) => {
   );
 
   return (
-    <StyledSidebar pl={3} pr={3}>
-      {Object.keys(games).map(id => {
+    <StyledSidebar p={3}>
+      {Object.keys(games).map((id, i) => {
         return (
-          <Div key={id} buffer onClick={() => history.push(`/games/${id}`)}>
+          <Div
+            key={id}
+            buffer={i > 0}
+            onClick={() => history.push(`/games/${id}`)}
+          >
             <Div>
               {id === gameId ? '* ' : ''}
               {games[id].opponent ? 'in progress' : 'new game'}
