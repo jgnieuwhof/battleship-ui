@@ -14,11 +14,25 @@ const StyledGame = styled(Flex)`
 
 const Game = ({ user, gameId, socket }) => {
   const [game, setGame] = useState({});
+  const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+    socket.on('server::game', x => setGame(x || {}));
+  }, []);
 
   useEffect(
     () => {
-      socket.on('server::game', x => setGame(x || {}));
-      socket.emit('client::joinRoom', { gameId }, x => setGame(x || {}));
+      socket.once('server::gameEvents', x => {
+        console.log([...events, ...x]);
+        setEvents([...events, ...x]);
+      });
+    },
+    [events]
+  );
+
+  useEffect(
+    () => {
+      if (gameId) socket.emit('client::joinRoom', { gameId });
     },
     [gameId]
   );
@@ -35,10 +49,10 @@ const Game = ({ user, gameId, socket }) => {
         {game.id && (
           <>
             <Div width="45%">
-              <Board player="host" {...{ user, game }} />
+              <Board player="host" {...{ user, game, events }} />
             </Div>
             <Div width="45%">
-              <Board player="opponent" {...{ user, game }} />
+              <Board player="opponent" {...{ user, game, events }} />
             </Div>
           </>
         )}
