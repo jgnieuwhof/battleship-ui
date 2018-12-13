@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 
 import { withSocket } from 'components/context/SocketContext';
@@ -19,14 +19,38 @@ const BoardSquare = styled(Div)`
   border: 1px solid black;
 `;
 
-const Board = ({ socket, user, player, game }) => {
+const Board = ({ socket, user, player, game, updateGame }) => {
   const { state, dimensions } = game;
   const [xDim, yDim] = dimensions;
-  const isPlayer = user.id === game[player];
+  const playerId = game[player];
+  const isPlayer = user.id === playerId;
   const isHost = user.id === game['host'];
+  const board = game.boards[playerId];
 
   const [hover, setHover] = useState([]);
   const [ship, setShip] = useState(null);
+  const [grid, setGrid] = useState(times(xDim, times(yDim, {})));
+
+  useEffect(
+    () => {
+      const shipLookup = ((board || {}).ships || []).reduce(
+        (obj, ship) =>
+          times(ship.length).reduce(
+            (obj, _, i) => ({ ...obj, [`${ship.x + i}.${ship.y}`]: ship.id }),
+            obj
+          ),
+        {}
+      );
+      setGrid(
+        times(xDim).map((_, x) =>
+          times(yDim).map((_, y) => ({
+            ship: shipLookup[`${x}.${y}`]
+          }))
+        )
+      );
+    },
+    [board]
+  );
 
   const playerLabel = isPlayer
     ? 'you'
@@ -41,7 +65,10 @@ const Board = ({ socket, user, player, game }) => {
       x < hover[0] + ship.length &&
       hover[1] === y
     ) {
-      return hover[0] + ship.length > xDim ? 'red' : 'green';
+      return hover[0] + ship.length > xDim || grid[x][y].ship ? 'red' : 'green';
+    }
+    if (grid[x][y].ship) {
+      return 'grey';
     }
     return null;
   };
@@ -49,10 +76,16 @@ const Board = ({ socket, user, player, game }) => {
   const onSquareClick = (x, y) => {
     if (!isPlayer) return;
     if (state === gameState.setup && ship && hover[0] + ship.length <= xDim) {
+      const { id, length } = ship;
+      const content = { x, y, rotation: 'h', id, length };
+      setShip(null);
+      updateGame({
+        boards: { [player]: { ships: x => [...(x || []), content] } }
+      });
       socket.emit('client::gameEvent', {
         gameId: game.id,
         type: gameEvent.placeShip,
-        content: { ship, x, y, rotation: 'h' }
+        content
       });
     }
   };
@@ -75,7 +108,7 @@ const Board = ({ socket, user, player, game }) => {
         ))}
       </Div>
       <Div buffer>
-        <Ships {...{ state, isPlayer, ship, setShip }} />
+        <Ships {...{ state, isPlayer, ship, setShip, board }} />
       </Div>
     </Div>
   );

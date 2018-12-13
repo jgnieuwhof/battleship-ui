@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
+import u from 'updeep';
 
 import { withSocket } from 'components/context/SocketContext';
 import { Div, Flex } from 'components/uikit';
@@ -15,15 +16,19 @@ const StyledGame = styled(Flex)`
 const Game = ({ user, gameId, socket }) => {
   const [game, setGame] = useState({});
   const [events, setEvents] = useState([]);
+  const updateGame = update => u(update, game);
 
   useEffect(() => {
-    socket.on('server::game', x => setGame(x || {}));
+    socket.on('server::game', x => {
+      console.log('game', x);
+      setGame(x || {});
+    });
   }, []);
 
   useEffect(
     () => {
       socket.once('server::gameEvents', x => {
-        console.log([...events, ...x]);
+        console.log('events', [...events, ...x]);
         setEvents([...events, ...x]);
       });
     },
@@ -49,10 +54,13 @@ const Game = ({ user, gameId, socket }) => {
         {game.id && (
           <>
             <Div width="45%">
-              <Board player="host" {...{ user, game, events }} />
+              <Board player="host" {...{ user, game, updateGame, events }} />
             </Div>
             <Div width="45%">
-              <Board player="opponent" {...{ user, game, events }} />
+              <Board
+                player="opponent"
+                {...{ user, game, updateGame, events }}
+              />
             </Div>
           </>
         )}
