@@ -54,13 +54,10 @@ const Game = ({ user, gameId, socket }) => {
         {game.id && (
           <>
             <Div width="45%">
-              <Board player="host" {...{ user, game, updateGame, events }} />
+              <Board player="host" {...{ user, game, updateGame }} />
             </Div>
             <Div width="45%">
-              <Board
-                player="opponent"
-                {...{ user, game, updateGame, events }}
-              />
+              <Board player="opponent" {...{ user, game, updateGame }} />
             </Div>
           </>
         )}

@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from '@emotion/styled';
 
-import { withSocket } from 'components/context/SocketContext';
 import { gameEvent, gameState } from 'common/constants';
 import { times } from 'util/array';
+import { withSocket } from 'components/context/SocketContext';
+import HotkeyProvider from 'components/providers/HotkeyProvider';
 import { Div, Flex } from 'components/uikit';
+
 import JoinButton from './JoinButton';
 import Ships from './Ships';
+import withGridState from './withGridState';
 
 const BoardSquare = styled(Div)`
   flex: 1 0 0px;
@@ -19,38 +22,41 @@ const BoardSquare = styled(Div)`
   border: 1px solid black;
 `;
 
-const Board = ({ socket, user, player, game, updateGame }) => {
-  const { state, dimensions } = game;
+const boardProps = Component => props => {
+  const { user, game, player } = props;
+  const { dimensions } = game;
   const [xDim, yDim] = dimensions;
   const playerId = game[player];
   const isPlayer = user.id === playerId;
   const isHost = user.id === game['host'];
   const board = game.boards[playerId];
+  return (
+    <Component
+      {...{ xDim, yDim, playerId, isPlayer, isHost, board }}
+      {...props}
+    />
+  );
+};
+
+const Board = ({
+  player, // native ...
+  user,
+  game,
+  updateGame,
+  socket, // withSocket
+  xDim, //boardProps ...
+  yDim,
+  playerId,
+  isPlayer,
+  isHost,
+  board,
+  grid // withGridState
+}) => {
+  const { state } = game;
 
   const [hover, setHover] = useState([]);
   const [ship, setShip] = useState(null);
-  const [grid, setGrid] = useState(times(xDim, times(yDim, {})));
-
-  useEffect(
-    () => {
-      const shipLookup = ((board || {}).ships || []).reduce(
-        (obj, ship) =>
-          times(ship.length).reduce(
-            (obj, _, i) => ({ ...obj, [`${ship.x + i}.${ship.y}`]: ship.id }),
-            obj
-          ),
-        {}
-      );
-      setGrid(
-        times(xDim).map((_, x) =>
-          times(yDim).map((_, y) => ({
-            ship: shipLookup[`${x}.${y}`]
-          }))
-        )
-      );
-    },
-    [board]
-  );
+  const [rotation, setRotation] = useState('h');
 
   const playerLabel = isPlayer
     ? 'you'
@@ -61,11 +67,15 @@ const Board = ({ socket, user, player, game, updateGame }) => {
     if (
       state === gameState.setup &&
       ship &&
-      x >= hover[0] &&
-      x < hover[0] + ship.length &&
-      hover[1] === y
+      (rotation === 'h'
+        ? x >= hover[0] && x < hover[0] + ship.length && hover[1] === y
+        : y >= hover[1] && y < hover[1] + ship.length && hover[0] === x)
     ) {
-      return hover[0] + ship.length > xDim || grid[x][y].ship ? 'red' : 'green';
+      return (rotation === 'h'
+        ? hover[0] + ship.length > xDim
+        : hover[1] + ship.length > yDim) || grid[x][y].ship
+        ? 'red'
+        : 'green';
     }
     if (grid[x][y].ship) {
       return 'grey';
@@ -75,9 +85,15 @@ const Board = ({ socket, user, player, game, updateGame }) => {
 
   const onSquareClick = (x, y) => {
     if (!isPlayer) return;
-    if (state === gameState.setup && ship && hover[0] + ship.length <= xDim) {
+    if (
+      state === gameState.setup &&
+      ship &&
+      (rotation === 'h'
+        ? hover[0] + ship.length <= xDim
+        : hover[1] + ship.length <= yDim)
+    ) {
       const { id, length } = ship;
-      const content = { x, y, rotation: 'h', id, length };
+      const content = { x, y, rotation, id, length };
       setShip(null);
       updateGame({
         boards: { [player]: { ships: x => [...(x || []), content] } }
@@ -90,28 +106,40 @@ const Board = ({ socket, user, player, game, updateGame }) => {
     }
   };
 
+  const onKeyUp = ({ keyCode }) => {
+    switch (keyCode) {
+      case 82:
+        setRotation(rotation === 'h' ? 'v' : 'h');
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
-    <Div textAlign="center">
-      <Div lineHeight="35px">{playerLabel}</Div>
-      <Div buffer>
-        {times(yDim).map((_, y) => (
-          <Flex key={y}>
-            {times(xDim).map((_, x) => (
-              <BoardSquare
-                key={x}
-                bg={getSquareColor(x, y)}
-                onClick={() => onSquareClick(x, y)}
-                onMouseOver={() => isPlayer && setHover([x, y])}
-              />
-            ))}
-          </Flex>
-        ))}
+    <HotkeyProvider onKeyUp={isPlayer ? onKeyUp : () => {}}>
+      <Div textAlign="center">
+        <Div lineHeight="35px">{playerLabel}</Div>
+        <Div buffer>
+          {times(yDim).map((_, y) => (
+            <Flex key={y}>
+              {times(xDim).map((_, x) => (
+                <BoardSquare
+                  key={x}
+                  bg={getSquareColor(x, y)}
+                  onClick={() => onSquareClick(x, y)}
+                  onMouseOver={() => isPlayer && setHover([x, y])}
+                />
+              ))}
+            </Flex>
+          ))}
+        </Div>
+        <Div buffer>
+          <Ships {...{ state, isPlayer, ship, setShip, board }} />
+        </Div>
       </Div>
-      <Div buffer>
-        <Ships {...{ state, isPlayer, ship, setShip, board }} />
-      </Div>
-    </Div>
+    </HotkeyProvider>
   );
 };
 
-export default withSocket(Board);
+export default withSocket(boardProps(withGridState(Board)));
