@@ -11,6 +11,24 @@ import JoinButton from './JoinButton';
 import Ships from './Ships';
 import withGridState from './withGridState';
 
+const isOutOfBounds = ({
+  location: [x, y],
+  rotation,
+  ship,
+  dimensions: [xDim, yDim]
+}) =>
+  (rotation === 'h' ? x : y) + ship.length > (rotation === 'h' ? xDim : yDim);
+
+const collidesWithShip = ({ location: [x, y], rotation, ship, grid }) =>
+  times(ship.length).some((_, i) => {
+    const row = grid[rotation === 'h' ? x + i : x] || [];
+    const cell = row[rotation === 'h' ? y : y + i];
+    return (cell || {}).ship;
+  });
+
+const isValidPlacement = props =>
+  [collidesWithShip, isOutOfBounds].every(x => !x(props));
+
 const BoardSquare = styled(Div)`
   flex: 1 0 0px;
   &:before {
@@ -32,7 +50,7 @@ const boardProps = Component => props => {
   const board = game.boards[playerId];
   return (
     <Component
-      {...{ xDim, yDim, playerId, isPlayer, isHost, board }}
+      {...{ dimensions, xDim, yDim, playerId, isPlayer, isHost, board }}
       {...props}
     />
   );
@@ -46,6 +64,7 @@ const Board = ({
   socket, // withSocket
   xDim, //boardProps ...
   yDim,
+  dimensions,
   playerId,
   isPlayer,
   isHost,
@@ -71,9 +90,8 @@ const Board = ({
         ? x >= hover[0] && x < hover[0] + ship.length && hover[1] === y
         : y >= hover[1] && y < hover[1] + ship.length && hover[0] === x)
     ) {
-      return (rotation === 'h'
-        ? hover[0] + ship.length > xDim
-        : hover[1] + ship.length > yDim) || grid[x][y].ship
+      return isOutOfBounds({ rotation, location: hover, ship, dimensions }) ||
+        grid[x][y].ship
         ? 'red'
         : 'green';
     }
@@ -88,9 +106,7 @@ const Board = ({
     if (
       state === gameState.setup &&
       ship &&
-      (rotation === 'h'
-        ? hover[0] + ship.length <= xDim
-        : hover[1] + ship.length <= yDim)
+      isValidPlacement({ rotation, location: hover, ship, dimensions, grid })
     ) {
       const { id, length } = ship;
       const content = { x, y, rotation, id, length };
