@@ -19,25 +19,36 @@ const Game = ({ user, gameId, socket }) => {
   const updateGame = update => u(update, game);
 
   useEffect(() => {
-    socket.on('server::game', x => {
+    const handler = x => {
       console.log('game', x);
       setGame(x || {});
-    });
+    };
+    socket.on('server::game', handler);
+    return () => {
+      socket.off('server::game', handler);
+    };
   }, []);
 
   useEffect(
     () => {
-      socket.once('server::gameEvents', x => {
+      const handler = x => {
         console.log('events', [...events, ...x]);
         setEvents([...events, ...x]);
-      });
+      };
+      socket.on('server::gameEvents', handler);
+      return () => {
+        socket.off('server::gameEvents', handler);
+      };
     },
     [events]
   );
 
   useEffect(
     () => {
-      if (gameId) socket.emit('client::joinRoom', { gameId });
+      if (gameId) {
+        setEvents([]);
+        socket.emit('client::joinRoom', { gameId });
+      }
     },
     [gameId]
   );
