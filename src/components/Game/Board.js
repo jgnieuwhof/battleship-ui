@@ -11,6 +11,11 @@ import JoinButton from './JoinButton';
 import Ships from './Ships';
 import withGridState from './withGridState';
 
+const isShipOnSquare = ({ x, y, rotation, location: [oX, oY], ship }) =>
+  rotation === 'h'
+    ? x >= oX && x < oX + ship.length && oY === y
+    : y >= oY && y < oY + ship.length && oX === x;
+
 const isOutOfBounds = ({
   location: [x, y],
   rotation,
@@ -86,9 +91,7 @@ const Board = ({
     if (
       state === gameState.setup &&
       ship &&
-      (rotation === 'h'
-        ? x >= hover[0] && x < hover[0] + ship.length && hover[1] === y
-        : y >= hover[1] && y < hover[1] + ship.length && hover[0] === x)
+      isShipOnSquare({ rotation, x, y, location: hover, ship })
     ) {
       return isOutOfBounds({ rotation, location: hover, ship, dimensions }) ||
         grid[x][y].ship
