@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { times } from 'util/array';
 
 const withGridState = Component => props => {
-  const { xDim, yDim, board } = props;
+  const { xDim, yDim, board, game } = props;
   const [grid, setGrid] = useState(times(xDim, times(yDim, {})));
 
   useEffect(
@@ -25,7 +25,7 @@ const withGridState = Component => props => {
         )
       );
     },
-    [board]
+    [game.id, board]
   );
 
   return <Component {...props} {...{ grid }} />;

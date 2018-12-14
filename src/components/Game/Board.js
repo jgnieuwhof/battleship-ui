@@ -91,9 +91,14 @@ const Board = ({
 }) => {
   const { state } = game;
 
-  const [hover, setHover] = useState([]);
   const [ship, setShip] = useState(null);
   const [rotation, setRotation] = useState('h');
+  const [hover, _setHover] = useState([]);
+  const setHover =
+    (state === gameStates.setup && ship && isPlayer) ||
+    (state === gameStates.playing && canPlay)
+      ? _setHover
+      : () => {};
 
   const playerLabel = isPlayer
     ? 'you'
@@ -119,7 +124,7 @@ const Board = ({
     ) {
       return 'blue';
     }
-    if (grid[x][y].ship) {
+    if (((grid[x] || [])[y] || {}).ship) {
       return 'grey';
     }
     return null;
@@ -164,7 +169,12 @@ const Board = ({
       <Div textAlign="center">
         <Div
           lineHeight="35px"
-          border={`1px solid ${turn === playerId ? 'blue' : 'white'}`}
+          border={`1px solid ${
+            state === gameStates.setup ||
+            (state === gameStates.playing && turn === playerId)
+              ? 'blue'
+              : 'white'
+          }`}
         >
           {playerLabel}
         </Div>
