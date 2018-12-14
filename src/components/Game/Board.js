@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 
-import { gameEvent, gameState } from 'common/constants';
+import { gameEvents, gameStates } from 'common/constants';
 import { times } from 'util/array';
 import { withSocket } from 'components/context/SocketContext';
 import HotkeyProvider from 'components/providers/HotkeyProvider';
@@ -47,15 +47,26 @@ const BoardSquare = styled(Div)`
 
 const boardProps = Component => props => {
   const { user, game, player } = props;
-  const { dimensions } = game;
+  const { turn, dimensions } = game;
   const [xDim, yDim] = dimensions;
   const playerId = game[player];
   const isPlayer = user.id === playerId;
   const isHost = user.id === game['host'];
   const board = game.boards[playerId];
+  const canPlay = turn === user.id && user.id !== playerId;
   return (
     <Component
-      {...{ dimensions, xDim, yDim, playerId, isPlayer, isHost, board }}
+      {...{
+        turn,
+        canPlay,
+        dimensions,
+        xDim,
+        yDim,
+        playerId,
+        isPlayer,
+        isHost,
+        board
+      }}
       {...props}
     />
   );
@@ -74,6 +85,8 @@ const Board = ({
   isPlayer,
   isHost,
   board,
+  canPlay,
+  turn,
   grid // withGridState
 }) => {
   const { state } = game;
@@ -89,7 +102,7 @@ const Board = ({
 
   const getSquareColor = (x, y) => {
     if (
-      state === gameState.setup &&
+      state === gameStates.setup &&
       ship &&
       isShipOnSquare({ rotation, x, y, location: hover, ship })
     ) {
@@ -98,6 +111,14 @@ const Board = ({
         ? 'red'
         : 'green';
     }
+    if (
+      state === gameStates.playing &&
+      canPlay &&
+      hover[0] === x &&
+      hover[1] === y
+    ) {
+      return 'blue';
+    }
     if (grid[x][y].ship) {
       return 'grey';
     }
@@ -105,9 +126,9 @@ const Board = ({
   };
 
   const onSquareClick = (x, y) => {
-    if (!isPlayer) return;
     if (
-      state === gameState.setup &&
+      state === gameStates.setup &&
+      isPlayer &&
       ship &&
       isValidPlacement({ rotation, location: hover, ship, dimensions, grid })
     ) {
@@ -119,9 +140,12 @@ const Board = ({
       });
       socket.emit('client::gameEvent', {
         gameId: game.id,
-        type: gameEvent.placeShip,
+        type: gameEvents.placeShip,
         content
       });
+    }
+    if (state === gameStates.playing && canPlay) {
+      console.log('TODO: record guess');
     }
   };
 
@@ -138,8 +162,13 @@ const Board = ({
   return (
     <HotkeyProvider onKeyUp={isPlayer ? onKeyUp : () => {}}>
       <Div textAlign="center">
-        <Div lineHeight="35px">{playerLabel}</Div>
-        <Div buffer>
+        <Div
+          lineHeight="35px"
+          border={`1px solid ${turn === playerId ? 'blue' : 'white'}`}
+        >
+          {playerLabel}
+        </Div>
+        <Div buffer onMouseOut={() => setHover([])}>
           {times(yDim).map((_, y) => (
             <Flex key={y}>
               {times(xDim).map((_, x) => (
@@ -147,7 +176,7 @@ const Board = ({
                   key={x}
                   bg={getSquareColor(x, y)}
                   onClick={() => onSquareClick(x, y)}
-                  onMouseOver={() => isPlayer && setHover([x, y])}
+                  onMouseOver={() => setHover([x, y])}
                 />
               ))}
             </Flex>

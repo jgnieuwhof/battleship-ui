@@ -1,8 +1,9 @@
-export const gameEvent = {
+export const gameEvents = {
   placeShip: 'placeShip'
 };
 
-export const gameState = {
+export const gameStates = {
   matchmaking: 'matchmaking',
-  setup: 'setup'
+  setup: 'setup',
+  playing: 'playing'
 };

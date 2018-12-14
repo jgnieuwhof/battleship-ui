@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { gameState } from 'common/constants';
+import { gameStates } from 'common/constants';
 import { Div } from 'components/uikit';
 
 const ships = [
@@ -20,7 +20,7 @@ const Ships = ({ board, state, isPlayer, ship, setShip }) => {
           s => s.id === x.id
         );
         const canBePlaced =
-          isPlayer && gameState.setup === state && !hasBeenPlaced;
+          isPlayer && gameStates.setup === state && !hasBeenPlaced;
         return (
           <Div
             buffer
