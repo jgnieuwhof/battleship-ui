@@ -6,15 +6,9 @@ import { Div, Input } from 'components/uikit';
 import { Title, Content, Footer } from 'components/Modal';
 
 const NewGame = ({ history, socket }) => {
-  const [numberOfShips /*, setNumberOfShips*/] = useState(5);
-  const [shotsPerTurn, setShotsPerTurn] = useState(1);
   const [dimensions, setDimensions] = useState([20, 20]);
 
-  const valid = [
-    // numberOfShips > 0,
-    shotsPerTurn > 0,
-    dimensions.every(Boolean)
-  ].every(Boolean);
+  const valid = [dimensions.every(Boolean)].every(Boolean);
 
   return (
     <>
@@ -30,28 +24,6 @@ const NewGame = ({ history, socket }) => {
             onChange={({ value }) => setDimensions([+value, +value])}
           />
         </Div>
-        <Div buffer>
-          shots per turn:{' '}
-          <Input
-            tiny
-            maxLength={1}
-            inputMask={/[^\d]/g}
-            value={shotsPerTurn}
-            onChange={({ value }) => setShotsPerTurn(+value)}
-          />
-        </Div>
-        {/*
-          <Div buffer>
-            number of ships:{' '}
-            <Input
-              tiny
-              maxLength={1}
-              inputMask={/[^\d]/g}
-              value={numberOfShips}
-              onChange={({ value }) => setNumberOfShips(+value)}
-            />
-          </Div>
-          */}
       </Content>
       <Footer
         enabled={valid}
@@ -59,8 +31,6 @@ const NewGame = ({ history, socket }) => {
           socket.emit(
             'client::newGame',
             {
-              numberOfShips,
-              shotsPerTurn,
               dimensions
             },
             ({ id }) => history.push(`/games/${id}`)
