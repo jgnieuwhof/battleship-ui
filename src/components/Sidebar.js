@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { withRouter } from 'react-router';
 
+import { displayState } from 'util/game';
 import { withSocket } from 'components/context/SocketContext';
 import { Div } from 'components/uikit';
 
@@ -38,7 +39,7 @@ const Sidebar = ({ history, user, gameId, setGame, socket }) => {
           >
             <Div>
               {id === gameId ? '* ' : ''}
-              {games[id].opponent ? 'in progress' : 'new game'}
+              {displayState(games[id].state)}
             </Div>
             <Div>
               {games[id].hostName} vs. {games[id].opponentName || '?'}

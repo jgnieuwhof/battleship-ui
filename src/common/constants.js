@@ -6,5 +6,6 @@ export const gameEvents = {
 export const gameStates = {
   matchmaking: 'matchmaking',
   setup: 'setup',
-  playing: 'playing'
+  playing: 'playing',
+  done: 'done'
 };

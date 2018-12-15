@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 
-import { gameEvents, gameStates } from 'common/constants';
+import { isValidPlacement, isOutOfBounds, isShipOnSquare } from 'util/game';
 import { times } from 'util/array';
+import { gameEvents, gameStates } from 'common/constants';
+
 import { withSocket } from 'components/context/SocketContext';
 import HotkeyProvider from 'components/providers/HotkeyProvider';
 import { Div, Flex } from 'components/uikit';
@@ -10,29 +12,7 @@ import { Div, Flex } from 'components/uikit';
 import JoinButton from './JoinButton';
 import Ships from './Ships';
 import withGridState from './withGridState';
-
-const isShipOnSquare = ({ x, y, rotation, location: [oX, oY], ship }) =>
-  rotation === 'h'
-    ? x >= oX && x < oX + ship.length && oY === y
-    : y >= oY && y < oY + ship.length && oX === x;
-
-const isOutOfBounds = ({
-  location: [x, y],
-  rotation,
-  ship,
-  dimensions: [xDim, yDim]
-}) =>
-  (rotation === 'h' ? x : y) + ship.length > (rotation === 'h' ? xDim : yDim);
-
-const collidesWithShip = ({ location: [x, y], rotation, ship, grid }) =>
-  times(ship.length).some((_, i) => {
-    const row = grid[rotation === 'h' ? x + i : x] || [];
-    const cell = row[rotation === 'h' ? y : y + i];
-    return (cell || {}).ship;
-  });
-
-const isValidPlacement = props =>
-  [collidesWithShip, isOutOfBounds].every(x => !x(props));
+import withBoardProps from './withBoardProps';
 
 const BoardSquare = styled(Div)`
   flex: 1 0 0px;
@@ -44,33 +24,6 @@ const BoardSquare = styled(Div)`
   }
   border: 1px solid black;
 `;
-
-const boardProps = Component => props => {
-  const { user, game, player } = props;
-  const { turn, dimensions } = game;
-  const [xDim, yDim] = dimensions;
-  const playerId = game[player];
-  const isPlayer = user.id === playerId;
-  const isHost = user.id === game['host'];
-  const board = game.boards[playerId];
-  const canPlay = turn === user.id && user.id !== playerId;
-  return (
-    <Component
-      {...{
-        turn,
-        canPlay,
-        dimensions,
-        xDim,
-        yDim,
-        playerId,
-        isPlayer,
-        isHost,
-        board
-      }}
-      {...props}
-    />
-  );
-};
 
 const Board = ({
   player, // native ...
@@ -104,6 +57,14 @@ const Board = ({
     ? 'you'
     : game[`${player}Name`] ||
       (isHost ? '...' : <JoinButton gameId={game.id} />);
+
+  const playerColor =
+    state === gameStates.setup ||
+    (state === gameStates.playing && turn === playerId)
+      ? 'blue'
+      : state === gameStates.done && game.winner === playerId
+      ? 'gold'
+      : 'white';
 
   const getSquareColor = (x, y) => {
     if (
@@ -164,28 +125,16 @@ const Board = ({
     }
   };
 
-  const onKeyUp = ({ keyCode }) => {
-    switch (keyCode) {
-      case 82:
-        setRotation(rotation === 'h' ? 'v' : 'h');
-        break;
-      default:
-        break;
-    }
-  };
-
   return (
-    <HotkeyProvider onKeyUp={isPlayer ? onKeyUp : () => {}}>
+    <HotkeyProvider
+      onKeyUp={x =>
+        isPlayer &&
+        x.keyCode === 82 &&
+        setRotation(rotation === 'h' ? 'v' : 'h')
+      }
+    >
       <Div textAlign="center">
-        <Div
-          lineHeight="35px"
-          border={`1px solid ${
-            state === gameStates.setup ||
-            (state === gameStates.playing && turn === playerId)
-              ? 'blue'
-              : 'white'
-          }`}
-        >
+        <Div lineHeight="35px" border={`1px solid ${playerColor}`}>
           {playerLabel}
         </Div>
         <Div buffer onMouseOut={() => setHover([])}>
@@ -210,4 +159,4 @@ const Board = ({
   );
 };
 
-export default withSocket(boardProps(withGridState(Board)));
+export default withSocket(withBoardProps(withGridState(Board)));

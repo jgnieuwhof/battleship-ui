@@ -1,16 +1,7 @@
 import React from 'react';
 
-import { gameStates } from 'common/constants';
+import { displayState } from 'util/game';
 import { Div } from 'components/uikit';
-
-const displayState = state => {
-  const displayStates = {
-    [gameStates.matchmaking]: 'waiting for opponent...',
-    [gameStates.setup]: 'placing ships...',
-    [gameStates.playing]: 'playing...'
-  };
-  return displayStates[state] || state;
-};
 
 const Summary = ({ gameId, game }) => {
   return (
