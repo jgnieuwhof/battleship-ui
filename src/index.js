@@ -13,17 +13,20 @@ import theme from './common/theme';
 
 import './index.css';
 
-const socket = io(`http://${apiHost}:${apiPort}`);
+const Root = () => {
+  const socket = io(`http://${apiHost}:${apiPort}`);
 
-ReactDOM.render(
-  <ModalContext.Provider>
-    <SocketContext.Provider value={socket}>
-      <ThemeProvider {...{ theme }}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </ThemeProvider>
-    </SocketContext.Provider>
-  </ModalContext.Provider>,
-  document.getElementById('root')
-);
+  return (
+    <ModalContext.Provider>
+      <SocketContext.Provider value={socket}>
+        <ThemeProvider {...{ theme }}>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </ThemeProvider>
+      </SocketContext.Provider>
+    </ModalContext.Provider>
+  );
+};
+
+ReactDOM.render(<Root />, document.getElementById('root'));
