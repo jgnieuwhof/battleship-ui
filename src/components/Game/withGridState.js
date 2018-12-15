@@ -21,15 +21,22 @@ const withGridState = Component => props => {
         {}
       );
       const guessLookup = (_board.guesses || []).reduce(
-        (obj, { x, y }) => ({ ...obj, [lookupKey(x, y)]: true }),
+        (obj, { x, y, isHit }) => ({
+          ...obj,
+          [lookupKey(x, y)]: isHit ? 'h' : 'm'
+        }),
         {}
       );
       setGrid(
         times(xDim).map((_, x) =>
-          times(yDim).map((_, y) => ({
-            ship: shipLookup[lookupKey(x, y)],
-            guess: guessLookup[lookupKey(x, y)]
-          }))
+          times(yDim).map((_, y) => {
+            const key = lookupKey(x, y);
+            return {
+              ship: shipLookup[key],
+              guess: !!guessLookup[key],
+              hit: guessLookup[key] === 'h'
+            };
+          })
         )
       );
     },

@@ -117,12 +117,10 @@ const Board = ({
         : 'green';
     }
     if (grid[x] && grid[x][y]) {
-      if (grid[x][y].guess) {
-        return 'white';
-      }
-      if (grid[x][y].ship) {
-        return 'grey';
-      }
+      const { hit, guess, ship } = grid[x][y];
+      if (hit) return 'red';
+      if (guess) return 'white';
+      if (ship) return 'grey';
     }
     if (
       state === gameStates.playing &&
