@@ -14,18 +14,21 @@ import Dashboard from 'components/Dashboard';
 import 'components/App.css';
 
 const App = ({ socket, history, location, match }) => {
-  const [user, setUser] = useState({});
+  const [user, _setUser] = useState({});
+
+  const setUser = x => {
+    _setUser(x);
+    store.set('user', x);
+  };
 
   const updateUser = update => {
-    socket.emit('client::updateUser', update, user => {
-      setUser(user);
-      store.set('user', user);
-    });
+    socket.emit('client::updateUser', update, setUser);
   };
 
   useEffect(() => {
-    if (!user.id) {
-      socket.emit('client::userInit', store.get('user'), user => {
+    const lsUser = store.get('user');
+    if (!user.id && lsUser) {
+      socket.emit('client::userInit', lsUser, user => {
         setUser(user);
         if (!location.pathname.startsWith('/games')) history.push('/games');
       });
