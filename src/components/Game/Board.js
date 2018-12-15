@@ -116,6 +116,14 @@ const Board = ({
         ? 'red'
         : 'green';
     }
+    if (grid[x] && grid[x][y]) {
+      if (grid[x][y].guess) {
+        return 'white';
+      }
+      if (grid[x][y].ship) {
+        return 'grey';
+      }
+    }
     if (
       state === gameStates.playing &&
       canPlay &&
@@ -123,9 +131,6 @@ const Board = ({
       hover[1] === y
     ) {
       return 'blue';
-    }
-    if (((grid[x] || [])[y] || {}).ship) {
-      return 'grey';
     }
     return null;
   };
@@ -149,8 +154,15 @@ const Board = ({
         content
       });
     }
-    if (state === gameStates.playing && canPlay) {
-      console.log('TODO: record guess');
+    if (state === gameStates.playing && canPlay && !grid[x][y].guess) {
+      updateGame({
+        boards: { [player]: { guesses: x => [...(x || []), { x, y }] } }
+      });
+      socket.emit('client::gameEvent', {
+        gameId: game.id,
+        type: gameEvents.guess,
+        content: { x, y }
+      });
     }
   };
 

@@ -1,5 +1,6 @@
 export const gameEvents = {
-  placeShip: 'placeShip'
+  placeShip: 'placeShip',
+  guess: 'guess'
 };
 
 export const gameStates = {
