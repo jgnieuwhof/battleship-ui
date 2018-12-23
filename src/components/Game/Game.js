@@ -25,7 +25,6 @@ const Game = ({ dimensions, theme, user, gameId, socket }) => {
 
   useEffect(() => {
     const handler = x => {
-      console.log('game', x);
       setGame(x || {});
     };
     socket.on('server::game', handler);
@@ -37,7 +36,6 @@ const Game = ({ dimensions, theme, user, gameId, socket }) => {
   useEffect(
     () => {
       const handler = x => {
-        console.log('events', [...events, ...x]);
         setEvents([...events, ...x]);
       };
       socket.on('server::gameEvents', handler);
