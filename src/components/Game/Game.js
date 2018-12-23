@@ -18,14 +18,14 @@ const StyledGame = styled(Flex)`
 const viewportRef = createRef();
 const gameRef = createRef();
 
-const Game = ({ dimensions, theme, user, gameId, socket }) => {
+const Game = ({ theme, user, gameId, socket }) => {
   const [game, setGame] = useState({});
-  const [events, setEvents] = useState([]);
   const updateGame = update => u(update, game);
 
   useEffect(() => {
     const handler = x => {
       setGame(x || {});
+      window.dispatchEvent(new Event('resize'));
     };
     socket.on('server::game', handler);
     return () => {
@@ -35,21 +35,7 @@ const Game = ({ dimensions, theme, user, gameId, socket }) => {
 
   useEffect(
     () => {
-      const handler = x => {
-        setEvents([...events, ...x]);
-      };
-      socket.on('server::gameEvents', handler);
-      return () => {
-        socket.off('server::gameEvents', handler);
-      };
-    },
-    [events]
-  );
-
-  useEffect(
-    () => {
       if (gameId) {
-        setEvents([]);
         socket.emit('client::joinRoom', { gameId });
       }
     },
@@ -80,12 +66,11 @@ const Game = ({ dimensions, theme, user, gameId, socket }) => {
         >
           {game.id && (
             <>
-              <Div width="45%">
-                <Board player="host" {...{ user, game, updateGame }} />
-              </Div>
-              <Div width="45%">
-                <Board player="opponent" {...{ user, game, updateGame }} />
-              </Div>
+              {['host', 'opponent'].map(player => (
+                <Div key={player} width="45%">
+                  <Board {...{ player, user, game, updateGame }} />
+                </Div>
+              ))}
             </>
           )}
         </Flex>
