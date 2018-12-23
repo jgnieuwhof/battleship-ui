@@ -29,7 +29,7 @@ const Sidebar = ({ history, user, gameId, setGame, socket }) => {
             <Div
               cursor="pointer"
               onClick={() => history.push(`/games/${id}`)}
-              {...id === gameId && { color: 'gold' }}
+              {...id === gameId && { color: 'blue' }}
             >
               <Div>{displayState(games[id].state)}</Div>
               <Div>
