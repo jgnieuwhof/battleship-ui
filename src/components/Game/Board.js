@@ -46,6 +46,10 @@ const Board = ({
 
   const [ship, setShip] = useState(null);
   const [rotation, setRotation] = useState('h');
+  const resetShip = () => {
+    setShip(null);
+    setRotation('h');
+  };
   const [hover, _setHover] = useState([]);
   const setHover =
     (state === gameStates.setup && ship && isPlayer) ||
@@ -103,11 +107,10 @@ const Board = ({
     ) {
       const { id, length } = ship;
       const content = { x, y, rotation, id, length };
-      setShip(null);
       updateGame({
         boards: { [player]: { ships: x => [...(x || []), content] } }
       });
-      setRotation('h');
+      resetShip();
       socket.emit('client::gameEvent', {
         gameId: game.id,
         type: gameEvents.placeShip,
@@ -126,14 +129,23 @@ const Board = ({
     }
   };
 
+  const onKeyUp = ({ keyCode }) => {
+    if (!isPlayer) return;
+    switch (keyCode) {
+      case 82:
+        if (state === gameStates.setup && ship)
+          setRotation(rotation === 'h' ? 'v' : 'h');
+        break;
+      case 27:
+        if (state === gameStates.setup && ship) resetShip();
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
-    <HotkeyProvider
-      onKeyUp={x =>
-        isPlayer &&
-        x.keyCode === 82 &&
-        setRotation(rotation === 'h' ? 'v' : 'h')
-      }
-    >
+    <HotkeyProvider {...{ onKeyUp }}>
       <Div textAlign="center">
         <Div lineHeight="35px" border={`1px solid ${playerColor}`}>
           {playerLabel}
