@@ -25,16 +25,16 @@ const Sidebar = ({ history, user, gameId, setGame, socket }) => {
     <Div>
       {Object.keys(games).map((id, i) => {
         return (
-          <Div
-            key={id}
-            buffer={i > 0}
-            onClick={() => history.push(`/games/${id}`)}
-            cursor="pointer"
-            {...id === gameId && { color: 'gold' }}
-          >
-            <Div>{displayState(games[id].state)}</Div>
-            <Div>
-              {games[id].hostName} vs. {games[id].opponentName || '?'}
+          <Div key={id} buffer={i > 0}>
+            <Div
+              cursor="pointer"
+              onClick={() => history.push(`/games/${id}`)}
+              {...id === gameId && { color: 'gold' }}
+            >
+              <Div>{displayState(games[id].state)}</Div>
+              <Div>
+                {games[id].hostName} vs. {games[id].opponentName || '?'}
+              </Div>
             </Div>
           </Div>
         );

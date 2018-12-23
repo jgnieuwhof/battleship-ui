@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { gameStates } from 'common/constants';
-import { Div } from 'components/uikit';
+import { Div, Span } from 'components/uikit';
 
 const ships = [
   { id: 1, name: 'carrier', length: 5 },
@@ -22,14 +22,13 @@ const Ships = ({ board, state, isPlayer, ship, setShip }) => {
         const canBePlaced =
           isPlayer && gameStates.setup === state && !hasBeenPlaced;
         return (
-          <Div
-            buffer
-            key={x.id}
-            onClick={() => canBePlaced && setShip(isPlacing ? null : x)}
-            color={isPlacing ? 'green' : 'default'}
-            cursor={canBePlaced ? 'pointer' : 'default'}
-          >
-            {x.name} ({x.length})
+          <Div buffer key={x.id} color={isPlacing ? 'green' : 'default'}>
+            <Span
+              cursor={canBePlaced ? 'pointer' : 'default'}
+              onClick={() => canBePlaced && setShip(isPlacing ? null : x)}
+            >
+              {x.name} ({x.length})
+            </Span>
           </Div>
         );
       })}

@@ -107,6 +107,7 @@ const Board = ({
       updateGame({
         boards: { [player]: { ships: x => [...(x || []), content] } }
       });
+      setRotation('h');
       socket.emit('client::gameEvent', {
         gameId: game.id,
         type: gameEvents.placeShip,
