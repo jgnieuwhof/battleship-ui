@@ -15,9 +15,10 @@ import {
   textAlign,
   lineHeight
 } from 'styled-system';
+import decamelize from 'decamelize';
 
 const styleHelper = (prop, cssProp) => props =>
-  props[prop] ? `${cssProp || prop}: ${props[prop]};` : ``;
+  props[prop] ? `${cssProp || decamelize(prop, '-')}: ${props[prop]};` : ``;
 
 const applyDefaultStyles = Component => styled(Component)`
   ${space}
@@ -38,7 +39,10 @@ const applyDefaultStyles = Component => styled(Component)`
   ${justifySelf}
   ${alignSelf}
 
-  ${styleHelper('flexGrow', 'flex-grow')}
+  ${styleHelper('overflowY')}
+  ${styleHelper('transform')}
+  ${styleHelper('transformOrigin')}
+  ${styleHelper('flexGrow')}
   ${styleHelper('cursor')}
 `;
 

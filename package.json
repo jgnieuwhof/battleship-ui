@@ -5,6 +5,7 @@
   "dependencies": {
     "@emotion/core": "^10.0.0",
     "@emotion/styled": "^10.0.0",
+    "decamelize": "^2.0.0",
     "emotion-theming": "^10.0.0",
     "react": "^16.7.0-alpha",
     "react-dom": "^16.7.0-alpha",
