@@ -57,18 +57,25 @@ const Board = ({
       ? _setHover
       : () => {};
 
-  const playerLabel = isPlayer
-    ? 'you'
-    : game[`${player}Name`] ||
-      (isHost ? '...' : <JoinButton gameId={game.id} />);
+  const playerLabel = () =>
+    isPlayer
+      ? 'you'
+      : game[`${player}Name`] ||
+        (isHost ? '...' : <JoinButton gameId={game.id} />);
 
-  const playerColor =
+  const playerColor = () =>
     state === gameStates.setup ||
     (state === gameStates.playing && turn === playerId)
       ? 'blue'
       : state === gameStates.done && game.winner === playerId
       ? 'gold'
       : 'white';
+
+  const showPlayerBorder = () =>
+    state !== gameStates.matchmaking || player === 'host';
+
+  const playerBorder = () =>
+    `${showPlayerBorder() ? 1 : 0}px solid ${playerColor()}`;
 
   const getSquareColor = (x, y) => {
     if (
@@ -147,8 +154,8 @@ const Board = ({
   return (
     <HotkeyProvider {...{ onKeyUp }}>
       <Div textAlign="center">
-        <Div lineHeight="35px" border={`1px solid ${playerColor}`}>
-          {playerLabel}
+        <Div lineHeight="35px" border={playerBorder()}>
+          {playerLabel()}
         </Div>
         <Div buffer onMouseOut={() => setHover([])}>
           {times(yDim).map((_, y) => (
