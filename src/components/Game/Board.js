@@ -51,11 +51,14 @@ const Board = ({
     setRotation('h');
   };
   const [hover, _setHover] = useState([]);
-  const setHover =
-    (state === gameStates.setup && ship && isPlayer) ||
-    (state === gameStates.playing && canPlay)
-      ? _setHover
-      : () => {};
+
+  const setHover = x => () => {
+    if (
+      (state === gameStates.setup && ship && isPlayer) ||
+      (state === gameStates.playing && canPlay)
+    )
+      _setHover(x);
+  };
 
   const playerLabel = () =>
     isPlayer
@@ -77,7 +80,7 @@ const Board = ({
   const playerBorder = () =>
     `${showPlayerBorder() ? 1 : 0}px solid ${playerColor()}`;
 
-  const getSquareColor = (x, y) => {
+  const squareColor = (x, y) => {
     if (
       state === gameStates.setup &&
       ship &&
@@ -105,7 +108,7 @@ const Board = ({
     return null;
   };
 
-  const onSquareClick = (x, y) => {
+  const onSquareClick = (x, y) => () => {
     if (
       state === gameStates.setup &&
       isPlayer &&
@@ -157,15 +160,15 @@ const Board = ({
         <Div lineHeight="35px" border={playerBorder()}>
           {playerLabel()}
         </Div>
-        <Div buffer onMouseOut={() => setHover([])}>
+        <Div buffer onMouseOut={setHover([])}>
           {times(yDim).map((_, y) => (
             <Flex key={y}>
               {times(xDim).map((_, x) => (
                 <BoardSquare
                   key={x}
-                  bg={getSquareColor(x, y)}
-                  onClick={() => onSquareClick(x, y)}
-                  onMouseOver={() => setHover([x, y])}
+                  bg={squareColor(x, y)}
+                  onClick={onSquareClick(x, y)}
+                  onMouseOver={setHover([x, y])}
                 />
               ))}
             </Flex>
